@@ -82,6 +82,7 @@
 
 <script>
     let userName = "";
+    const c360Keywords = ["c360", "customer360", "customer 360", "overview"];
 
     function sendMessage() {
         const userInput = document.getElementById("userInput");
@@ -92,17 +93,34 @@
         userInput.value = "";
 
         let botReply = "";
+
+        // If we don't have the user's name yet, treat first message as their name
         if (userName === "") {
             userName = messageText;
             botReply = `Hello ${userName}, how are you doing? 
             I am not yet fully trained. Rest assured that once I am ready, 
             I can provide solutions related to Data Management in AtlasCopco Vacuum Tube Business Applications. 
             Please return after a few days.`;
-        } else {
-            botReply = `Thanks for your message, ${userName}. I am still under development.`;
+            addMessage(botReply, "bot-message");
+            return;
         }
 
-        addMessage(botReply, "bot-message");
+        // Check for C360 keywords
+        if (c360Keywords.some(keyword => messageText.toLowerCase().includes(keyword))) {
+            fetch("https://raw.githubusercontent.com/InalaRavu/VTBA-AskR/main/Knowledge%20Base%20Root/Customer360/overview.md")
+                .then(response => response.text())
+                .then(data => {
+                    botReply = data;
+                    addMessage(botReply, "bot-message");
+                })
+                .catch(error => {
+                    botReply = "Sorry, I couldn't fetch the Customer360 overview right now.";
+                    addMessage(botReply, "bot-message");
+                });
+        } else {
+            botReply = `Thanks for your message, ${userName}. I am still under development.`;
+            addMessage(botReply, "bot-message");
+        }
     }
 
     function addMessage(text, className) {
@@ -122,6 +140,7 @@
         }
     });
 </script>
+
 
 </body>
 </html>
