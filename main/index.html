@@ -107,7 +107,6 @@
 </div>
 
 <script>
-    // Display message in chat
     function addMessage(text, className) {
         const chatMessages = document.getElementById("chatMessages");
         const messageDiv = document.createElement("div");
@@ -117,13 +116,22 @@
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // Azure Cognitive Search integration
+    function addPromptButton(label, onClickFunction) {
+        const chatMessages = document.getElementById("chatMessages");
+        const button = document.createElement("button");
+        button.innerText = label;
+        button.className = "prompt-button";
+        button.onclick = function() {
+            addMessage(label, "user-message");
+            onClickFunction();
+        };
+        chatMessages.appendChild(button);
+    }
+
     async function searchKB(query) {
         const searchServiceName = "agentvtsearch"; // Your Cognitive Search resource name
         const indexName = "azureblob-index"; // Your index name
         const apiKey = "HOEDbifMnnwr3fNfZ5vjY56UKRpkC5EBh7HPSl8xBcAzSeBzsTL2"; // Primary admin key from Azure Cognitive Search
-
-        addMessage(`Got it! Let me check the Knowledge Base for '${query}'...`, "bot-message");
 
         const url = `https://${searchServiceName}.search.windows.net/indexes/${indexName}/docs?api-version=2021-04-30-Preview&search=${encodeURIComponent(query)}`;
 
@@ -136,10 +144,20 @@
             });
 
             const data = await response.json();
+
             if (data.value && data.value.length > 0) {
-                addMessage(data.value[0].content, "bot-message");
+                // If query is short, ask for clarification
+                const wordCount = query.split(/\s+/).length;
+                if (wordCount < 2) {
+                    addMessage(`I found articles related to '${query}'. Can you clarify what you need?`, "bot-message");
+                    addPromptButton("Overview", function() { searchKB(query + " overview"); });
+                    addPromptButton("Troubleshooting", function() { searchKB(query + " troubleshooting"); });
+                } else {
+                    // If query already has detail, return top match
+                    addMessage(data.value[0].content, "bot-message");
+                }
             } else {
-                addMessage(`Hmm 🤔 I couldn't find anything for '${query}' in the Knowledge Base.`, "bot-message");
+                addMessage(`I could not find any article for '${query}' as of now. Please keep checking — I’m updating myself regularly.`, "bot-message");
             }
         } catch (error) {
             console.error(error);
@@ -147,7 +165,6 @@
         }
     }
 
-    // Send message from user
     function sendMessage() {
         const userInput = document.getElementById("userInput");
         const messageText = userInput.value.trim();
@@ -159,7 +176,6 @@
         searchKB(messageText);
     }
 
-    // Greeting on page load
     function showGreeting() {
         addMessage("Hi there! 👋 Welcome to AskR - VTBA Chat Agent.", "bot-message");
         addMessage("I’m here to help you with Data Management in AtlasCopco VTBA.", "bot-message");
@@ -168,7 +184,6 @@
 
     window.onload = showGreeting;
 
-    // Press Enter to send message
     document.getElementById("userInput").addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             event.preventDefault();
