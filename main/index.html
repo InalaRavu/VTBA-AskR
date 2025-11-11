@@ -118,7 +118,8 @@
         addPromptButton("C360 Overview", fetchC360Overview);
         addPromptButton("Others", function() {
             addMessage("I am updating myself. Keep checking.", "bot-message");
-            addMessage("Prompt: C360 Overview", "bot-message");
+            addMessage("You can still check:", "bot-message");
+            addPromptButton("C360 Overview", fetchC360Overview);
         });
     }
 
