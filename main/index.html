@@ -134,7 +134,7 @@
         const indexName = "azureblob-index"; // from Azure
         const apiKey = "HOEDbifMnnwr3fNfZ5vjY56UKRpkC5EBh7HPSl8xBcAzSeBzsTL2"; // from Azure Cognitive Search -> Keys tab
 
-        const url = `https://${searchServiceName}.search.windows.net/indexes/${indexName}/docs?api-version=2021-04-30-Preview&search=${encodeURIComponent(query)}`;
+        const url = `https://${searchServiceName}.search.windows.net/indexes/${indexName}/docs?api-version=2020-06-30&search=${encodeURIComponent(query)}`;
 
         try {
             const response = await fetch(url, {
