@@ -106,6 +106,7 @@
 </div>
 
 <script>
+    // Display message in chat
     function addMessage(text, className) {
         const chatMessages = document.getElementById("chatMessages");
         const messageDiv = document.createElement("div");
@@ -115,26 +116,15 @@
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    function addPromptButton(label, onClickFunction) {
-        const chatMessages = document.getElementById("chatMessages");
-        const button = document.createElement("button");
-        button.innerText = label;
-        button.className = "prompt-button";
-        button.onclick = function() {
-            addMessage(label, "user-message");
-            document.querySelectorAll(".prompt-button").forEach(btn => btn.remove());
-            onClickFunction();
-        };
-        chatMessages.appendChild(button);
-    }
-
     // Azure Cognitive Search integration
     async function searchKB(query) {
-        const searchServiceName = "agentvtsearch"; //  agentvtsearch
-        const indexName = "azureblob-index"; // from Azure
-        const apiKey = "HOEDbifMnnwr3fNfZ5vjY56UKRpkC5EBh7HPSl8xBcAzSeBzsTL2"; // from Azure Cognitive Search -> Keys tab
+        const searchServiceName = "agentvtsearch"; // Your Cognitive Search resource name
+        const indexName = "azureblob-index"; // Your index name
+        const apiKey = "HOEDbifMnnwr3fNfZ5vjY56UKRpkC5EBh7HPSl8xBcAzSeBzsTL2"; // Primary admin key from Azure Cognitive Search
 
-        const url = `https://${searchServiceName}.search.windows.net/indexes/${indexName}/docs?api-version=2020-06-30&search=${encodeURIComponent(query)}`;
+        addMessage(`Got it! Let me check the Knowledge Base for '${query}'...`, "bot-message");
+
+        const url = `https://${searchServiceName}.search.windows.net/indexes/${indexName}/docs?api-version=2021-04-30-Preview&search=${encodeURIComponent(query)}`;
 
         try {
             const response = await fetch(url, {
@@ -148,14 +138,15 @@
             if (data.value && data.value.length > 0) {
                 addMessage(data.value[0].content, "bot-message");
             } else {
-                addMessage("Sorry, I couldn't find relevant information in the KB.", "bot-message");
+                addMessage(`Hmm 🤔 I couldn't find anything for '${query}' in the Knowledge Base.`, "bot-message");
             }
         } catch (error) {
             console.error(error);
-            addMessage("Error searching KB.", "bot-message");
+            addMessage("Oops! Something went wrong while searching the KB.", "bot-message");
         }
     }
 
+    // Send message from user
     function sendMessage() {
         const userInput = document.getElementById("userInput");
         const messageText = userInput.value.trim();
@@ -164,19 +155,17 @@
         addMessage(messageText, "user-message");
         userInput.value = "";
 
-        // Call Azure Cognitive Search
         searchKB(messageText);
     }
 
-    // Initial prompts
-    function showInitialPrompts() {
-        addMessage("Thank you for contacting AskR - VTBA Chat Agent. Please select a prompt:", "bot-message");
-        addPromptButton("Customer360 Overview", function() { searchKB("Customer360 Overview"); });
-        addPromptButton("Common (CDM)", function() { searchKB("Common CDM Overview"); });
-        addPromptButton("Beagle", function() { searchKB("Beagle Overview"); });
+    // Greeting on page load
+    function showGreeting() {
+        addMessage("Hi there! 👋 Welcome to AskR - VTBA Chat Agent.", "bot-message");
+        addMessage("I’m here to help you with Data Management in AtlasCopco VTBA.", "bot-message");
+        addMessage("What would you like to know today?", "bot-message");
     }
 
-    window.onload = showInitialPrompts;
+    window.onload = showGreeting;
 
     // Press Enter to send message
     document.getElementById("userInput").addEventListener("keypress", function(event) {
@@ -186,7 +175,6 @@
         }
     });
 </script>
-
     
 <!-- <script>
     function addMessage(text, className) {
