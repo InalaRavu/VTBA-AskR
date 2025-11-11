@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AtlasCopco VTBA Chat Agent</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .chat-container {
+            width: 400px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #0078D7;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            outline: none;
+        }
+        .chat-input button {
+            padding: 10px;
+            border: none;
+            background: #0078D7;
+            color: white;
+            cursor: pointer;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background: #DCF8C6;
+            align-self: flex-end;
+        }
+        .bot-message {
+            background: #F1F0F0;
+            align-self: flex-start;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">AtlasCopco VTBA Chat Agent</div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    function sendMessage() {
+        const userInput = document.getElementById("userInput");
+        const messageText = userInput.value.trim();
+        if (messageText === "") return;
+
+        // Add user message
+        addMessage(messageText, "user-message");
+
+        // Clear input
+        userInput.value = "";
+
+        // Bot reply (static for now)
+        const botReply = `Hello Ravi, how are you doing? 
+        I am not yet fully trained. Rest assured that once I am ready, 
+        I can provide solutions related to Data Management in AtlasCopco Vacuum Tube Business Applications. 
+        Please return after a few days.`;
+
+        addMessage(botReply, "bot-message");
+    }
+
+    function addMessage(text, className) {
+        const chatMessages = document.getElementById("chatMessages");
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${className}`;
+        messageDiv.innerText = text;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+    }
+</script>
+
+</body>
+</html>
