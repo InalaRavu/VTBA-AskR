@@ -71,58 +71,17 @@
 </head>
 <body>
 
+
 <div class="chat-container">
     <div class="chat-header">AtlasCopco VTBA Chat Agent</div>
     <div class="chat-messages" id="chatMessages"></div>
-    <div class="chat-input">
+    <div class="chat-input" id="chatInputArea">
         <input type="text" id="userInput" placeholder="Type a message..." />
         <button onclick="sendMessage()">Send</button>
     </div>
 </div>
 
 <script>
-    let userName = "";
-    const c360Keywords = ["c360", "customer360", "customer 360", "overview"];
-
-    function sendMessage() {
-        const userInput = document.getElementById("userInput");
-        const messageText = userInput.value.trim();
-        if (messageText === "") return;
-
-        addMessage(messageText, "user-message");
-        userInput.value = "";
-
-        let botReply = "";
-
-        // If we don't have the user's name yet, treat first message as their name
-        if (userName === "") {
-            userName = messageText;
-            botReply = `Hello ${userName}, how are you doing? 
-            I am not yet fully trained. Rest assured that once I am ready, 
-            I can provide solutions related to Data Management in AtlasCopco Vacuum Tube Business Applications. 
-            Please return after a few days.`;
-            addMessage(botReply, "bot-message");
-            return;
-        }
-
-        // Check for C360 keywords
-        if (c360Keywords.some(keyword => messageText.toLowerCase().includes(keyword))) {
-            fetch("https://raw.githubusercontent.com/InalaRavu/VTBA-AskR/main/Knowledge%20Base%20Root/Customer360/overview.md")
-                .then(response => response.text())
-                .then(data => {
-                    botReply = data;
-                    addMessage(botReply, "bot-message");
-                })
-                .catch(error => {
-                    botReply = "Sorry, I couldn't fetch the Customer360 overview right now.";
-                    addMessage(botReply, "bot-message");
-                });
-        } else {
-            botReply = `Thanks for your message, ${userName}. I am still under development.`;
-            addMessage(botReply, "bot-message");
-        }
-    }
-
     function addMessage(text, className) {
         const chatMessages = document.getElementById("chatMessages");
         const messageDiv = document.createElement("div");
@@ -132,14 +91,53 @@
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // Press Enter to send message
-    document.getElementById("userInput").addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            sendMessage();
-        }
-    });
+    function addPromptButton(label, onClickFunction) {
+        const chatMessages = document.getElementById("chatMessages");
+        const button = document.createElement("button");
+        button.innerText = label;
+        button.style.margin = "5px";
+        button.onclick = onClickFunction;
+        chatMessages.appendChild(button);
+    }
+
+    // Show initial prompts
+    function showInitialPrompts() {
+        addMessage("Thank you for contacting AskR - VTBA Chat Agent. Please select a prompt:", "bot-message");
+        addPromptButton("Customer360", showCustomer360Prompts);
+        addPromptButton("Common (CDM)", function() {
+            addMessage("I am updating myself. Keep checking.", "bot-message");
+        });
+        addPromptButton("Beagle", function() {
+            addMessage("I am updating myself. Keep checking.", "bot-message");
+        });
+    }
+
+    // Show Customer360 prompts
+    function showCustomer360Prompts() {
+        addMessage("Please select a Customer360 prompt:", "bot-message");
+        addPromptButton("C360 Overview", fetchC360Overview);
+        addPromptButton("Others", function() {
+            addMessage("I am updating myself. Keep checking.", "bot-message");
+            addMessage("Prompt: C360 Overview", "bot-message");
+        });
+    }
+
+    // Fetch C360 Overview from GitHub raw URL
+    function fetchC360Overview() {
+        fetch("https://raw.githubusercontent.com/InalaRavu/VTBA-AskR/main/Knowledge%20Base%20Root/Customer360/overview.md")
+            .then(response => response.text())
+            .then(data => {
+                addMessage(data, "bot-message");
+            })
+            .catch(error => {
+                addMessage("Sorry, I couldn't fetch the Customer360 overview right now.", "bot-message");
+            });
+    }
+
+    // Initialize chatbot with prompts
+    window.onload = showInitialPrompts;
 </script>
+
 
 
 </body>
